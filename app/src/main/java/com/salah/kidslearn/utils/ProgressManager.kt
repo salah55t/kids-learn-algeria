@@ -92,7 +92,7 @@ class ProgressManager private constructor(private val context: Context) {
     fun isLessonCompleted(lessonId: String): Boolean =
         getCompletedLessons().contains(lessonId)
 
-    private fun getCompletedLessons(): Set<String> =
+    fun getCompletedLessons(): Set<String> =
         prefs.getStringSet(KEY_COMPLETED_LESSONS, emptySet()) ?: emptySet()
 
     // ================== الملصقات التشجيعية ==================

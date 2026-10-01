@@ -23,7 +23,7 @@ class SoundUtils private constructor(private val context: Context) {
         .setAudioAttributes(
             android.media.AudioAttributes.Builder()
                 .setUsage(android.media.AudioAttributes.USAGE_GAME)
-                .setContentType(android.media.AudioAttributes.CONTENTTYPE_SONIFICATION)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build()
         )
         .build()
