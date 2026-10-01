@@ -85,6 +85,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_letter_big" />
 
+    <!-- نص التغذية الراجعة بعد التحقق من الكتابة -->
+    <TextView
+        android:id="@+id/tv_feedback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_xs"
+        android:textColor="@color/success"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_letter_name"
+        tools:ignore="HardcodedText" />
+
     <!-- لوح الرسم -->
     <FrameLayout
         android:id="@+id/canvas_container"
@@ -94,7 +109,7 @@
         android:background="@drawable/bg_canvas_rounded"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_letter_name">
+        app:layout_constraintTop_toBottomOf="@id/tv_feedback">
 
         <com.salah.kidslearn.widgets.DrawingCanvasView
             android:id="@+id/drawing_canvas"

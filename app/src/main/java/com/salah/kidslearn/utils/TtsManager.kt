@@ -97,6 +97,30 @@ class TtsManager private constructor(private val context: Context) {
         }
     }
 
+    /**
+     * نطق نص بنبرة مخصصة (لمحاكاة أصوات الحيوانات)
+     * مثلاً: نطق "مياو" بنبرة عالية لمحاكاة صوت القطة
+     *
+     * @param text النص المراد نطقه
+     * @param pitch النبرة (0.5 منخفض، 1.0 عادي، 2.0 مرتفع)
+     * @param lang اللغة "ar" أو "en"
+     */
+    fun speakWithPitch(text: String, pitch: Float, lang: String = "ar") {
+        try {
+            tts?.setPitch(pitch.coerceIn(0.1f, 2.0f))
+            tts?.setSpeechRate(0.7f)  // بطيء ليكون أوضح
+            speak(text, lang)
+        } catch (e: Exception) {
+            Log.e("TtsManager", "speakWithPitch failed", e)
+            speak(text, lang)
+        } finally {
+            try {
+                tts?.setPitch(1.0f)
+                tts?.setSpeechRate(1.0f)
+            } catch (_: Exception) {}
+        }
+    }
+
     fun stop() {
         try {
             tts?.stop()

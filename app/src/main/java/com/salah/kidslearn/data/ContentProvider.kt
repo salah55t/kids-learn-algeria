@@ -105,17 +105,39 @@ object ContentProvider {
     )
 
     // ================== الحيوانات (10 حيوانات) ==================
+    // soundFile: اسم ملف صوتي في res/raw (بدون .ogg) - أصفار إن لم يتوفر صوت حقيقي
+    // ttsPitch: نبرة TTS لمحاكاة صوت الحيوان (0.5 منخفض، 1.0 عادي, 2.0 مرتفع)
     val animals: List<AnimalItem> = listOf(
-        AnimalItem("قطة", "Cat", "مياو", "ic_animal_cat"),
-        AnimalItem("كلب", "Dog", "هو هو", "ic_animal_dog"),
-        AnimalItem("أسد", "Lion", "زئير", "ic_animal_lion"),
-        AnimalItem("بقرة", "Cow", "موه", "ic_animal_cow"),
-        AnimalItem("حصان", "Horse", "صهيل", "ic_animal_horse"),
-        AnimalItem("خروف", "Sheep", "ماع", "ic_animal_sheep"),
-        AnimalItem("دجاجة", "Chicken", "كوكو", "ic_animal_chicken"),
-        AnimalItem("بطة", "Duck", "كواك", "ic_animal_duck"),
-        AnimalItem("سمكة", "Fish", "بلبل", "ic_animal_fish"),
-        AnimalItem("فيل", "Elephant", "بوق", "ic_animal_elephant")
+        // قطة - لدينا صوت حقيقي
+        AnimalItem("قطة", "Cat", "مياو", "ic_animal_cat",
+            soundFile = "animal_cat", ttsPitch = 1.5f),
+        // كلب - سنستعمل TTS بنبرة منخفضة لمحاكاة نباح
+        AnimalItem("كلب", "Dog", "هو هو", "ic_animal_dog",
+            soundFile = "", ttsPitch = 0.7f),
+        // أسد - TTS بنبرة منخفضة جداً لمحاكاة الزئير
+        AnimalItem("أسد", "Lion", "غروو", "ic_animal_lion",
+            soundFile = "", ttsPitch = 0.5f),
+        // بقرة - TTS بنبرة منخفضة متوسطة
+        AnimalItem("بقرة", "Cow", "موه", "ic_animal_cow",
+            soundFile = "", ttsPitch = 0.8f),
+        // حصان - لدينا صوت حقيقي
+        AnimalItem("حصان", "Horse", "صهيل", "ic_animal_horse",
+            soundFile = "animal_horse", ttsPitch = 0.9f),
+        // خروف - TTS بنبرة مرتفعة لمحاكاة الثغاء
+        AnimalItem("خروف", "Sheep", "ماع", "ic_animal_sheep",
+            soundFile = "", ttsPitch = 1.3f),
+        // دجاجة - TTS بنبرة مرتفعة جداً لمحاكاة الصياح
+        AnimalItem("دجاجة", "Chicken", "كوكو", "ic_animal_chicken",
+            soundFile = "", ttsPitch = 1.8f),
+        // بطة - لدينا صوت حقيقي
+        AnimalItem("بطة", "Duck", "كواك", "ic_animal_duck",
+            soundFile = "animal_duck", ttsPitch = 1.0f),
+        // سمكة - TTS بنبرة مرتفعة (لا تصدر أصواتاً حقيقية)
+        AnimalItem("سمكة", "Fish", "بل بل", "ic_animal_fish",
+            soundFile = "", ttsPitch = 1.6f),
+        // فيل - TTS بنبرة منخفضة جداً لمحاكاة البوق
+        AnimalItem("فيل", "Elephant", "بوه", "ic_animal_elephant",
+            soundFile = "", ttsPitch = 0.4f)
     )
 
     // ================== الشارات (Badges) ==================

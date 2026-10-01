@@ -137,6 +137,51 @@ class SoundUtils private constructor(private val context: Context) {
         }
     }
 
+    /**
+     * يحمل ملف صوت من res/raw ويعيد soundId لاستعماله لاحقاً
+     * @param rawName اسم الملف بدون امتداد (مثال: "animal_cat")
+     * @return soundId أو 0 عند الفشل
+     */
+    fun loadRaw(rawName: String): Int {
+        // نتحقق من التحميل المسبق
+        soundIds["raw_$rawName"]?.let { return it }
+
+        return try {
+            val resId = context.resources.getIdentifier(rawName, "raw", context.packageName)
+            if (resId == 0) {
+                Log.w(TAG, "Raw resource not found: $rawName")
+                return 0
+            }
+            val sid = soundPool?.load(context, resId, 1) ?: 0
+            soundIds["raw_$rawName"] = sid
+            Log.d(TAG, "Loaded raw $rawName -> soundId=$sid")
+            sid
+        } catch (e: Exception) {
+            Log.e(TAG, "loadRaw failed for $rawName", e)
+            0
+        }
+    }
+
+    /**
+     * يشغّل صوتاً من res/raw حسب اسمه
+     * @param rawName اسم الملف بدون امتداد
+     * @return true إذا تم التشغيل، false إذا فشل
+     */
+    fun playRaw(rawName: String): Boolean {
+        return try {
+            var sid = soundIds["raw_$rawName"]
+            if (sid == null || sid == 0) {
+                sid = loadRaw(rawName)
+            }
+            if (sid == 0) return false
+            soundPool?.play(sid, 1.0f, 1.0f, 1, 0, 1.0f)
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "playRaw failed for $rawName", e)
+            false
+        }
+    }
+
     companion object {
         @Volatile private var instance: SoundUtils? = null
         fun getInstance(context: Context): SoundUtils {

@@ -73,15 +73,19 @@ data class ShapeItem(
  * نموذج بيانات الحيوان
  * @param name اسم الحيوان بالعربية
  * @param englishName اسم الحيوان بالإنجليزية
- * @param sound صوت الحيوان (نص للـ TTS)
+ * @param sound صوت الحيوان كنص (onomatopoeia) للـ TTS
  * @param drawable معرف رسم الحيوان
+ * @param soundFile اسم ملف الصوت الحقيقي في res/raw (بدون امتداد) أو فارغاً
+ * @param ttsPitch نبرة TTS عند نطق الصوت (0.5-2.0) لمحاكاة صوت الحيوان
  */
 @Parcelize
 data class AnimalItem(
     val name: String,
     val englishName: String,
     val sound: String,
-    val drawable: String
+    val drawable: String,
+    val soundFile: String = "",
+    val ttsPitch: Float = 1.0f
 ) : Parcelable
 
 /**

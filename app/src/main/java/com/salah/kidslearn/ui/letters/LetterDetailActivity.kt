@@ -1,7 +1,7 @@
 package com.salah.kidslearn.ui.letters
 
-import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -29,9 +29,15 @@ import com.salah.kidslearn.widgets.DrawingCanvasView
  * 6. كلمة مثال + رسم توضيحي
  * 7. زر السابق/التالي
  *
- * عند إكمال الكتابة: يكافئ الطفل بـ XP + نجمة + صوت نجاح
+ * عند إكمال الكتابة:
+ * - يحسب نسبة دقة الرسم عبر DrawingCanvasView.verifyDrawing()
+ * - يمنح نقاط XP حسب الدقة (10 لممتاز، 7 لجيد، 3 لمحاولة)
+ * - يمنح نجمة كاملة فقط عند الدقة >= 50%
+ * - يفتح ملصقات تشجيعية بعد كل 3 دروس
  */
 class LetterDetailActivity : AppCompatActivity() {
+
+    private val TAG = "LetterDetail"
 
     private lateinit var drawingCanvas: DrawingCanvasView
     private lateinit var tvLetter: TextView
@@ -40,6 +46,7 @@ class LetterDetailActivity : AppCompatActivity() {
     private lateinit var ivExampleImage: ImageView
     private lateinit var cardSpeak: CardView
     private lateinit var cardClear: CardView
+    private lateinit var tvFeedback: TextView
 
     private var letterIndex: Int = 0
     private var language: String = "ar"
@@ -47,7 +54,13 @@ class LetterDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_letter_detail)
+        try {
+            setContentView(R.layout.activity_letter_detail)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to set content view", e)
+            finish()
+            return
+        }
 
         language = intent.getStringExtra(EXTRA_LANGUAGE) ?: "ar"
         letterIndex = intent.getIntExtra(EXTRA_LETTER_INDEX, 0)
@@ -59,7 +72,11 @@ class LetterDetailActivity : AppCompatActivity() {
 
         // نطق تلقائي عند الفتح
         drawingCanvas.postDelayed({
-            TtsManager.getInstance(this).speakLetter(letter?.letter ?: "", language)
+            try {
+                TtsManager.getInstance(this).speakLetter(letter?.letter ?: "", language)
+            } catch (e: Exception) {
+                Log.e(TAG, "TTS speak error", e)
+            }
         }, 600)
     }
 
@@ -81,27 +98,33 @@ class LetterDetailActivity : AppCompatActivity() {
         cardSpeak = findViewById(R.id.card_speak)
         cardClear = findViewById(R.id.card_clear)
 
-        // أزرار الألوان
-        findViewById<View>(R.id.btn_color_pink).setOnClickListener { changeBrushColor(R.color.brush_red) }
-        findViewById<View>(R.id.btn_color_blue).setOnClickListener { changeBrushColor(R.color.brush_blue) }
-        findViewById<View>(R.id.btn_color_green).setOnClickListener { changeBrushColor(R.color.brush_green) }
-        findViewById<View>(R.id.btn_color_purple).setOnClickListener { changeBrushColor(R.color.brush_purple) }
-        findViewById<View>(R.id.btn_color_orange).setOnClickListener { changeBrushColor(R.color.brush_orange) }
-        findViewById<View>(R.id.btn_color_pink_default).setOnClickListener { changeBrushColor(R.color.brush_default) }
+        // tv_feedback سيُضاف في الـ layout لكن نتجاهل غيابه
+        @Suppress("UnsafeCallKotlinNullable")
+        tvFeedback = findViewById(R.id.tv_feedback) ?: TextView(this).also {
+            it.visibility = View.GONE
+        }
 
-        findViewById<View>(R.id.btn_back).setOnClickListener { finish() }
-        findViewById<View>(R.id.btn_prev).setOnClickListener {
+        // أزرار الألوان
+        findViewById<View>(R.id.btn_color_pink)?.setOnClickListener { changeBrushColor(R.color.brush_red) }
+        findViewById<View>(R.id.btn_color_pink_default)?.setOnClickListener { changeBrushColor(R.color.brush_default) }
+        findViewById<View>(R.id.btn_color_blue)?.setOnClickListener { changeBrushColor(R.color.brush_blue) }
+        findViewById<View>(R.id.btn_color_green)?.setOnClickListener { changeBrushColor(R.color.brush_green) }
+        findViewById<View>(R.id.btn_color_purple)?.setOnClickListener { changeBrushColor(R.color.brush_purple) }
+        findViewById<View>(R.id.btn_color_orange)?.setOnClickListener { changeBrushColor(R.color.brush_orange) }
+
+        findViewById<View>(R.id.btn_back)?.setOnClickListener { finish() }
+        findViewById<View>(R.id.btn_prev)?.setOnClickListener {
             if (letterIndex > 0) {
-                SoundUtils.getInstance(this).playClick()
+                try { SoundUtils.getInstance(this).playClick() } catch (_: Exception) {}
                 letterIndex--
                 loadLetter()
                 displayLetter()
             }
         }
-        findViewById<View>(R.id.btn_next).setOnClickListener {
+        findViewById<View>(R.id.btn_next)?.setOnClickListener {
             val list = if (language == "ar") ContentProvider.arabicLetters else ContentProvider.englishLetters
             if (letterIndex < list.size - 1) {
-                SoundUtils.getInstance(this).playClick()
+                try { SoundUtils.getInstance(this).playClick() } catch (_: Exception) {}
                 letterIndex++
                 loadLetter()
                 displayLetter()
@@ -113,34 +136,50 @@ class LetterDetailActivity : AppCompatActivity() {
     }
 
     private fun changeBrushColor(colorRes: Int) {
-        SoundUtils.getInstance(this).playClick()
-        drawingCanvas.brushColor = ContextCompat.getColor(this, colorRes)
+        try {
+            SoundUtils.getInstance(this).playClick()
+            drawingCanvas.brushColor = ContextCompat.getColor(this, colorRes)
+        } catch (e: Exception) {
+            Log.e(TAG, "changeBrushColor error", e)
+        }
     }
 
     private fun setupListeners() {
-        cardSpeak.setOnClickListener {
-            letter?.let {
-                SoundUtils.getInstance(this).playClick()
-                TtsManager.getInstance(this).speakLetter(it.letter, language)
+        cardSpeak?.setOnClickListener {
+            letter?.let { l ->
+                try {
+                    SoundUtils.getInstance(this).playClick()
+                    TtsManager.getInstance(this).speakLetter(l.letter, language)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Speak error", e)
+                }
             }
         }
-        cardClear.setOnClickListener {
-            SoundUtils.getInstance(this).playClick()
-            drawingCanvas.clearCanvas()
+        cardClear?.setOnClickListener {
+            try {
+                SoundUtils.getInstance(this).playClick()
+                drawingCanvas.clearCanvas()
+                tvFeedback?.text = ""
+            } catch (e: Exception) {
+                Log.e(TAG, "Clear error", e)
+            }
         }
-        // عند بدء الكتابة، نظهر زر "اكتمل الدرس" يمكن إضافة منطق الكشف التلقائي
+
+        findViewById<View>(R.id.btn_complete)?.setOnClickListener {
+            onLessonComplete()
+        }
     }
 
     private fun displayLetter() {
         letter?.let { l ->
             tvLetter.text = l.letter
             tvLetterName.text = l.name
-            tvExampleWord.text = if (language == "ar") l.exampleWord else l.exampleWord
+            tvExampleWord.text = l.exampleWord
             drawingCanvas.guideLetter = l.letter
             drawingCanvas.language = l.language
             drawingCanvas.clearCanvas()
+            tvFeedback?.text = ""
 
-            // تحميل رسم الكلمة المثال
             val resId = resources.getIdentifier(l.exampleDrawable, "drawable", packageName)
             if (resId != 0) {
                 ivExampleImage.setImageResource(resId)
@@ -149,63 +188,133 @@ class LetterDetailActivity : AppCompatActivity() {
                 ivExampleImage.visibility = View.GONE
             }
 
-            // إظهار/إخفاء زر السابق
-            findViewById<View>(R.id.btn_prev).visibility =
+            findViewById<View>(R.id.btn_prev)?.visibility =
                 if (letterIndex > 0) View.VISIBLE else View.INVISIBLE
 
-            // نطق الحرف تلقائياً
             drawingCanvas.postDelayed({
-                TtsManager.getInstance(this).speakLetter(l.letter, language)
+                try {
+                    TtsManager.getInstance(this).speakLetter(l.letter, language)
+                } catch (e: Exception) {
+                    Log.e(TAG, "TTS auto speak error", e)
+                }
             }, 400)
-
-            // زر "اكمل الدرس"
-            findViewById<View>(R.id.btn_complete).setOnClickListener {
-                onLessonComplete()
-            }
         }
     }
 
+    /**
+     * عند إكمال الدرس - يحسب دقة الرسم ويعطي تغذية راجعة مناسبة
+     */
     private fun onLessonComplete() {
         if (!drawingCanvas.hasDrawing()) {
+            try { SoundUtils.getInstance(this).playError() } catch (_: Exception) {}
             Toast.makeText(this, "ارسم الحرف أولاً ✏️", Toast.LENGTH_SHORT).show()
+            tvFeedback?.text = "ارسم الحرف أولاً ✏️"
+            tvFeedback?.setTextColor(ContextCompat.getColor(this, R.color.error))
             return
         }
 
+        // نحسب دقة الرسم
+        val accuracy = drawingCanvas.verifyDrawing()
+        Log.d(TAG, "Drawing accuracy: $accuracy")
+
         val lessonId = "letter_${language}_$letterIndex"
         val pm = ProgressManager.getInstance(this)
+
+        // المنح المكافآت حسب الدقة
+        val xpEarned: Int
+        val feedback: String
+        val feedbackColor: Int
+
+        when {
+            accuracy >= 0.7 -> {
+                // ممتاز
+                xpEarned = 10
+                feedback = "أحسنت! رسم ممتاز ⭐⭐⭐"
+                feedbackColor = R.color.success
+                try { SoundUtils.getInstance(this).playSuccess() } catch (_: Exception) {}
+                // تفيير بنبرة TTS للإثارة
+                try {
+                    val tts = TtsManager.getInstance(this)
+                    tts.speak("أحسنت يا بطل!", "ar")
+                } catch (_: Exception) {}
+            }
+            accuracy >= 0.4 -> {
+                // جيد
+                xpEarned = 7
+                feedback = "جيد جداً! ⭐⭐"
+                feedbackColor = R.color.warning
+                try { SoundUtils.getInstance(this).playSuccess() } catch (_: Exception) {}
+                try {
+                    TtsManager.getInstance(this).speak("جيد جداً، استمر!", "ar")
+                } catch (_: Exception) {}
+            }
+            accuracy >= 0.2 -> {
+                // جيد - متوسط
+                xpEarned = 5
+                feedback = "جيد، تابع التدريب ⭐"
+                feedbackColor = R.color.warning
+                try { SoundUtils.getInstance(this).playClick() } catch (_: Exception) {}
+                try {
+                    TtsManager.getInstance(this).speak("جيد، حاول مرة أخرى لتحسّن", "ar")
+                } catch (_: Exception) {}
+            }
+            else -> {
+                // ضعيف - نحنّم الطفل بلطف
+                xpEarned = 3
+                feedback = "حاول تتبع الحرف بإحكام 💪"
+                feedbackColor = R.color.error
+                try { SoundUtils.getInstance(this).playError() } catch (_: Exception) {}
+                try {
+                    TtsManager.getInstance(this).speak("حاول أن تطابق الحرف", "ar")
+                } catch (_: Exception) {}
+            }
+        }
+
+        // عرض التغذية الراجعة
+        tvFeedback?.text = feedback
+        try {
+            tvFeedback?.setTextColor(ContextCompat.getColor(this, feedbackColor))
+        } catch (_: Exception) {}
+
+        // تسجيل الإنجاز (مرة واحدة لكل درس)
         if (!pm.isLessonCompleted(lessonId)) {
             pm.markLessonCompleted(lessonId)
-            pm.addXp(10)
-            pm.addStar()
+            pm.addXp(xpEarned)
+            // نمنح نجمة كاملة فقط عند الدقة >= 50%
+            if (accuracy >= 0.5) {
+                pm.addStar()
+            }
             pm.updateStreak()
-            SoundUtils.getInstance(this).playSuccess()
 
             // فحص الملصقات
             val stickerRes = pm.checkStickerUnlock()
             if (stickerRes != null) {
                 Toast.makeText(this, getString(R.string.sticker_unlocked_msg), Toast.LENGTH_LONG).show()
             } else {
-                Toast.makeText(
-                    this,
-                    "أحسنت! +10 نقاط ⭐",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this, "+$xpEarned نقطة ⭐", Toast.LENGTH_SHORT).show()
             }
         } else {
+            // الدرس مكتمل من قبل - نعطي نصف XP فقط للتحفيز
+            pm.addXp(xpEarned / 2)
             Toast.makeText(this, getString(R.string.completed), Toast.LENGTH_SHORT).show()
         }
 
         // الانتقال للتالي بعد قليل
         drawingCanvas.postDelayed({
-            val list = if (language == "ar") ContentProvider.arabicLetters else ContentProvider.englishLetters
-            if (letterIndex < list.size - 1) {
-                letterIndex++
-                loadLetter()
-                displayLetter()
-            } else {
+            try {
+                val list = if (language == "ar") ContentProvider.arabicLetters else ContentProvider.englishLetters
+                if (letterIndex < list.size - 1) {
+                    letterIndex++
+                    loadLetter()
+                    displayLetter()
+                } else {
+                    finish()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Navigation error", e)
                 finish()
             }
-        }, 1200)
+        }, 1800)
     }
 
     companion object {

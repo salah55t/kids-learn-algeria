@@ -1,6 +1,7 @@
 package com.salah.kidslearn.ui.animals
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,30 +18,127 @@ import com.salah.kidslearn.utils.ProgressManager
 import com.salah.kidslearn.utils.SoundUtils
 import com.salah.kidslearn.utils.TtsManager
 
+/**
+ * قسم الحيوانات - يعرض 10 حيوانات مع أصواتها
+ *
+ * عند الضغط على حيوان:
+ * 1. إن وُجد ملف صوتي حقيقي في res/raw (مثلاً animal_cat.ogg)
+ *    نشغّله عبر SoundPool
+ * 2. إضافة لذلك، ننطق اسم الحيوان وصوته (onomatopoeia)
+ *    عبر TTS بنبرة مخصصة لمحاكاة صوت الحيوان
+ * 3. نمنح الطفل نقاط XP ونجمة (مرة لكل حيوان)
+ *
+ * الأصوات الحقيقية المتوفرة حالياً (من Wikimedia Commons، CC-BY-SA):
+ * - قطة (animal_cat.ogg)  ← صوت مواء حقيقي
+ * - بطة (animal_duck.ogg)  ← صوت بط حقيقي
+ * - حصان (animal_horse.ogg) ← صوت صهيل حقيقي
+ *
+ * لبقية الحيوانات نستعمل TTS بنبرة مخصصة:
+ * - كلب: بنبرة 0.7 (نباح منخفض)
+ * - أسد: بنبرة 0.5 (زئير منخفض جداً)
+ * - بقرة: بنبرة 0.8 (خوار)
+ * - خروف: بنبرة 1.3 (ثغاء مرتفع)
+ * - دجاجة: بنبرة 1.8 (صياح مرتفع)
+ * - سمكة: بنبرة 1.6 (بل بل)
+ * - فيل: بنبرة 0.4 (بوق منخفض جداً)
+ */
 class AnimalsActivity : AppCompatActivity() {
+
+    private val TAG = "AnimalsActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_animals)
+        try {
+            setContentView(R.layout.activity_animals)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to set content view", e)
+            finish()
+            return
+        }
 
-        findViewById<View>(R.id.btn_back).setOnClickListener { finish() }
+        findViewById<View>(R.id.btn_back)?.setOnClickListener { finish() }
 
         val rv = findViewById<RecyclerView>(R.id.rv_animals)
         rv.layoutManager = GridLayoutManager(this, 2)
         rv.adapter = AnimalsAdapter(ContentProvider.animals) { animal, position ->
-            SoundUtils.getInstance(this).playClick()
-            // نطق اسم الحيوان + صوته
-            TtsManager.getInstance(this).speak("${animal.name}! ${animal.sound}", "ar")
-            TtsManager.getInstance(this).speak(animal.englishName, "en")
+            playClickSafe()
+            playAnimalSound(animal)
 
             val lessonId = "animal_$position"
             val pm = ProgressManager.getInstance(this)
-            if (!pm.isLessonCompleted(lessonId)) {
-                pm.markLessonCompleted(lessonId)
-                pm.addXp(5)
-                pm.addStar()
-                SoundUtils.getInstance(this).playSuccess()
+            try {
+                if (!pm.isLessonCompleted(lessonId)) {
+                    pm.markLessonCompleted(lessonId)
+                    pm.addXp(5)
+                    pm.addStar()
+                    pm.updateStreak()
+                    SoundUtils.getInstance(this).playSuccess()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Progress update failed", e)
             }
+        }
+    }
+
+    /**
+     * يشغّل صوت الحيوان:
+     * 1. إن وُجد ملف صوتي حقيقي نشغّله عبر SoundPool
+     * 2. ننطق اسم الحيوان وصوته عبر TTS بنبرة مخصصة
+     */
+    private fun playAnimalSound(animal: AnimalItem) {
+        try {
+            // 1. تشغيل الصوت الحقيقي إن وُجد
+            if (animal.soundFile.isNotEmpty()) {
+                val played = SoundUtils.getInstance(this).playRaw(animal.soundFile)
+                Log.d(TAG, "Played real sound ${animal.soundFile}: $played")
+            }
+
+            // 2. نطق اسم الحيوان عبر TTS بصوت عادي
+            TtsManager.getInstance(this).speak("${animal.name}!", "ar")
+
+            // 3. بعد قليل نطق صوت الحيوان (onomatopoeia) بنبرة مخصصة
+            // نؤخر قليلاً لتفادي التداخل مع الصوت الحقيقي إن كان موجوداً
+            val delay = if (animal.soundFile.isNotEmpty()) 1500L else 800L
+            drawingCanvasPostDelayed(delay) {
+                try {
+                    TtsManager.getInstance(this).speakWithPitch(
+                        animal.sound,
+                        animal.ttsPitch,
+                        "ar"
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "TTS pitch speak failed", e)
+                }
+            }
+
+            // 4. نطق الاسم الإنجليزي بعد ذلك
+            drawingCanvasPostDelayed(delay + 1200) {
+                try {
+                    TtsManager.getInstance(this).speak(animal.englishName, "en")
+                } catch (e: Exception) {
+                    Log.e(TAG, "TTS English speak failed", e)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "playAnimalSound error", e)
+        }
+    }
+
+    /**
+     * نسخة مغلّفة بـ try-catch من postDelayed
+     */
+    private fun drawingCanvasPostDelayed(delay: Long, action: () -> Unit) {
+        // نستعمل الـ RecyclerView لأنه موجود دائماً
+        findViewById<View>(R.id.rv_animals)?.postDelayed({
+            try { action() } catch (e: Exception) {
+                Log.e(TAG, "postDelayed action failed", e)
+            }
+        }, delay)
+    }
+
+    private fun playClickSafe() {
+        try { SoundUtils.getInstance(this).playClick() } catch (e: Exception) {
+            Log.e(TAG, "playClick failed", e)
         }
     }
 }
@@ -69,7 +167,10 @@ class AnimalsAdapter(
         val a = items[position]
         holder.tvName.text = a.name
         holder.tvEnglishName.text = a.englishName
-        holder.tvSound.text = "🔊 ${a.sound}"
+
+        // نعرض أيقونة "🔊" مع رمز يوضح إذا كان الصوت حقيقياً
+        val soundIcon = if (a.soundFile.isNotEmpty()) "🔊🎵" else "🔊"
+        holder.tvSound.text = "$soundIcon ${a.sound}"
 
         val resId = holder.itemView.context.resources.getIdentifier(
             a.drawable, "drawable", holder.itemView.context.packageName
