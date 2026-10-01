@@ -220,26 +220,25 @@ class LetterDetailActivity : AppCompatActivity() {
         val lessonId = "letter_${language}_$letterIndex"
         val pm = ProgressManager.getInstance(this)
 
-        // المنح المكافآت حسب الدقة
+        // المنح المكافآت حسب الدقة (عتبات مخفّضة للأطفال)
         val xpEarned: Int
         val feedback: String
         val feedbackColor: Int
 
         when {
-            accuracy >= 0.7 -> {
-                // ممتاز
+            accuracy >= 0.35 -> {
+                // ممتاز (عتبة مخفّضة من 0.7 إلى 0.35 لتسامح أكثر)
                 xpEarned = 10
                 feedback = "أحسنت! رسم ممتاز ⭐⭐⭐"
                 feedbackColor = R.color.success
                 try { SoundUtils.getInstance(this).playSuccess() } catch (_: Exception) {}
-                // تفيير بنبرة TTS للإثارة
                 try {
                     val tts = TtsManager.getInstance(this)
                     tts.speak("أحسنت يا بطل!", "ar")
                 } catch (_: Exception) {}
             }
-            accuracy >= 0.4 -> {
-                // جيد
+            accuracy >= 0.2 -> {
+                // جيد جداً (عتبة مخفّضة من 0.4 إلى 0.2)
                 xpEarned = 7
                 feedback = "جيد جداً! ⭐⭐"
                 feedbackColor = R.color.warning
@@ -248,8 +247,8 @@ class LetterDetailActivity : AppCompatActivity() {
                     TtsManager.getInstance(this).speak("جيد جداً، استمر!", "ar")
                 } catch (_: Exception) {}
             }
-            accuracy >= 0.2 -> {
-                // جيد - متوسط
+            accuracy >= 0.1 -> {
+                // جيد - متوسط (عتبة مخفّضة من 0.2 إلى 0.1)
                 xpEarned = 5
                 feedback = "جيد، تابع التدريب ⭐"
                 feedbackColor = R.color.warning

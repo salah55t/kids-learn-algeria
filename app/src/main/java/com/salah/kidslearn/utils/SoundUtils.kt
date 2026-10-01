@@ -138,6 +138,25 @@ class SoundUtils private constructor(private val context: Context) {
     }
 
     /**
+     * إيقاف كل الأصوات قيد التشغيل - يُستدعى قبل بدء صوت جديد لمنع التداخل
+     */
+    fun stopAll() {
+        try {
+            // لا يوجد method مباشرة لإيقاف كل الأصوات في SoundPool
+            // نوقف كل soundId معروف
+            soundIds.values.forEach { sid ->
+                if (sid != 0) {
+                    try {
+                        soundPool?.stop(sid)
+                    } catch (_: Exception) {}
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "stopAll failed", e)
+        }
+    }
+
+    /**
      * يحمل ملف صوت من res/raw ويعيد soundId لاستعماله لاحقاً
      * @param rawName اسم الملف بدون امتداد (مثال: "animal_cat")
      * @return soundId أو 0 عند الفشل

@@ -51,11 +51,10 @@ class DrawingCanvasView @JvmOverloads constructor(
         }
     }
 
-    // لون القلم الافتراضي
     var brushColor: Int = try {
         ContextCompat.getColor(context, R.color.brush_default)
     } catch (e: Exception) {
-        Color.parseColor("#E91E63")  // fallback
+        Color.parseColor("#E91E63")
     }
         set(value) {
             field = value
@@ -63,7 +62,6 @@ class DrawingCanvasView @JvmOverloads constructor(
             invalidate()
         }
 
-    // حجم القلم
     var brushSize: Float = 24f
         set(value) {
             field = value
@@ -71,14 +69,12 @@ class DrawingCanvasView @JvmOverloads constructor(
             invalidate()
         }
 
-    // الحرف الدليلي
     var guideLetter: String = ""
         set(value) {
             field = value
             invalidate()
         }
 
-    // لغة الحرف
     var language: String = "ar"
 
     private var lastX: Float = 0f
@@ -109,7 +105,6 @@ class DrawingCanvasView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         try {
-            // خلفية بيضاء مدوّرة
             val bgPaint = Paint().apply {
                 color = Color.WHITE
                 isAntiAlias = true
@@ -117,7 +112,6 @@ class DrawingCanvasView @JvmOverloads constructor(
             val rect = RectF(0f, 0f, width.toFloat(), height.toFloat())
             canvas.drawRoundRect(rect, 24f, 24f, bgPaint)
 
-            // رسم الحرف الدليلي
             if (guideLetter.isNotEmpty()) {
                 val textSize = minOf(width, height) * 0.65f
                 guidePaint.textSize = textSize
@@ -210,62 +204,70 @@ class DrawingCanvasView @JvmOverloads constructor(
     /**
      * التحقق من صحة الرسم - يحسب نسبة التداخل بين رسم الطفل والحرف الدليلي
      *
-     * @return نسبة من 0.0 إلى 1.0:
-     *   - 1.0 = رسم مثالي (يطابق الحرف الدليلي تماماً)
-     *   - 0.5 = تغطية 50% من مساحة الحرف الدليلي
-     *   - 0.0 = لا يوجد تداخل (الطفل لم يكتب الحرف بعد)
+     * @return نسبة من 0.0 إلى 1.0
      *
      * الخوارزمية:
-     * 1. نرسم الحرف الدليلي على Bitmap (semi-transparent)
-     * 2. نرسم رسم الطفل على Bitmap آخر (بقلم أعرض للتسامح)
-     * 3. نأخذ عينات بكسل من كل Bitmap
-     * 4. نحسب نسبة البكسلات في رسم الطفل التي تتداخل مع الحرف الدليلي
+     * 1. نرسم الحرف الدليلي على Bitmap بأسلوب FILL_AND_STROKE (يغطي كل مساحة الحرف)
+     * 2. نرسم رسم الطفل على Bitmap آخر بأسلوب FILL_AND_STROKE بقلم عريض
+     * 3. نحسب نسبة البكسلات المتداخلة من إجمالي بكسلات الحرف الدليلي
+     *
+     * ملاحظة: نستعمل أبعاد الـ View نفسها (لا تصغير) لتفادي التعقيد مع canvas.scale
+     * نأخذ عينات كل 4 بكسلات لتسريع الحساب
      */
     fun verifyDrawing(): Float {
         if (guideLetter.isEmpty() || paths.isEmpty()) return 0.0f
         if (width == 0 || height == 0) return 0.0f
 
         try {
-            // 1. نرسم الحرف الدليلي على Bitmap (بـ stroke واسع للتسامح)
-            val guideBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val bmpW = width
+            val bmpH = height
+
+            Log.d("DrawingCanvas", "verifyDrawing: bmp=${bmpW}x${bmpH} paths=${paths.size} guide='$guideLetter'")
+
+            // 1. رسم الحرف الدليلي بأسلوب FILL_AND_STROKE لتغطية أكبر مساحة (محيط + داخل)
+            val guideBmp = Bitmap.createBitmap(bmpW, bmpH, Bitmap.Config.ARGB_8888)
             val guideCanvas = Canvas(guideBmp)
-            val guideVerifyPaint = Paint(guidePaint).apply {
-                alpha = 255  // رسم معتم بدلاً من الشفاف
-                style = Paint.Style.STROKE
-                strokeWidth = 50f  // حد أدنى للتسامح
+            val guideVerifyPaint = Paint().apply {
+                color = Color.RED
+                style = Paint.Style.FILL_AND_STROKE  // ← مفتاح الإصلاح: يملأ الحرف كله
+                strokeWidth = 40f  // عرض إضافي للتسامح
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+                isAntiAlias = true
+                alpha = 255
             }
-            val textSize = minOf(width, height) * 0.65f
+            val textSize = minOf(bmpW, bmpH) * 0.65f
             guideVerifyPaint.textSize = textSize
             guideVerifyPaint.textAlign = Paint.Align.CENTER
 
             val textBounds = Rect()
             guideVerifyPaint.getTextBounds(guideLetter, 0, guideLetter.length, textBounds)
-            val baseline = height / 2f + textBounds.height() / 2f - textBounds.bottom
-            guideCanvas.drawText(guideLetter, width / 2f, baseline, guideVerifyPaint)
+            val baseline = bmpH / 2f + textBounds.height() / 2f - textBounds.bottom
+            guideCanvas.drawText(guideLetter, bmpW / 2f, baseline, guideVerifyPaint)
 
-            // 2. نرسم رسم الطفل على Bitmap آخر
-            val userBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            // 2. رسم رسم الطفل على Bitmap آخر - بقلم عريض للتسامح
+            val userBmp = Bitmap.createBitmap(bmpW, bmpH, Bitmap.Config.ARGB_8888)
             val userCanvas = Canvas(userBmp)
             val userVerifyPaint = Paint().apply {
                 isAntiAlias = true
-                style = Paint.Style.STROKE
+                style = Paint.Style.FILL_AND_STROKE
                 strokeCap = Paint.Cap.ROUND
                 strokeJoin = Paint.Join.ROUND
-                strokeWidth = brushSize * 1.5f  // قلم أعرض للتسامح
-                color = Color.BLACK
+                strokeWidth = (brushSize * 2.5f)  // قلم عريض جداً للتسامح
+                color = Color.BLUE
             }
             paths.forEach { (path, _) ->
                 userCanvas.drawPath(path, userVerifyPaint)
             }
             currentPath?.let { userCanvas.drawPath(it, userVerifyPaint) }
 
-            // 3. نأخذ عينات (نخطّي كل بكسلين لتسريع الأداء)
+            // 3. حساب نسبة التداخل - عينات كل 4 بكسلات للأداء
             var guidePixels = 0
             var overlapPixels = 0
-            val step = 3  // عينة كل 3 بكسلات لتسريع الحساب
+            val step = 4
 
-            for (y in 0 until height step step) {
-                for (x in 0 until width step step) {
+            for (y in 0 until bmpH step step) {
+                for (x in 0 until bmpW step step) {
                     val guidePixel = guideBmp.getPixel(x, y)
                     val userPixel = userBmp.getPixel(x, y)
                     val guideAlpha = Color.alpha(guidePixel)
@@ -280,12 +282,11 @@ class DrawingCanvasView @JvmOverloads constructor(
                 }
             }
 
-            // إعادة تدوير الـ Bitmaps لتحرير الذاكرة
             guideBmp.recycle()
             userBmp.recycle()
 
             val score = if (guidePixels == 0) 0.0f else overlapPixels.toFloat() / guidePixels
-            Log.d("DrawingCanvas", "verifyDrawing: guide=$guidePixels overlap=$overlapPixels score=$score")
+            Log.d("DrawingCanvas", "verifyDrawing result: guide=$guidePixels overlap=$overlapPixels score=$score")
             return score.coerceIn(0.0f, 1.0f)
 
         } catch (e: Exception) {
@@ -294,9 +295,6 @@ class DrawingCanvasView @JvmOverloads constructor(
         }
     }
 
-    /**
-     * نسخة محسّنة من toBitmap تستعمل رسم الطفل فقط (للمشاركة)
-     */
     fun toBitmap(): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)

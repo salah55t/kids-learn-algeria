@@ -129,6 +129,20 @@ class TtsManager private constructor(private val context: Context) {
         }
     }
 
+    /**
+     * إيقاف كل النطق فوراً - يُستدعى قبل بدء صوت جديد لمنع التداخل
+     */
+    fun stopAll() {
+        try {
+            tts?.stop()
+            // إعادة ضبط النبرة والسرعة للقيم الافتراضية
+            tts?.setPitch(1.0f)
+            tts?.setSpeechRate(1.0f)
+        } catch (e: Exception) {
+            Log.e("TtsManager", "stopAll failed", e)
+        }
+    }
+
     fun destroy() {
         try {
             tts?.stop()
