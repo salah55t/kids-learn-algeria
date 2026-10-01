@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- نصوص عربية - التطبيق يدعم العربية افتراضياً -->
+    <!-- ملاحظة: values/strings.xml يحتوي النصوص الإنجليزية الافتراضية -->
+    <!-- values-ar/strings.xml يحتوي النصوص العربية الكاملة -->
+
+    <string name="app_name_ar">تعلّم و العب</string>
+
+    <!-- الشاشة الرئيسية - نصوص عربية إضافية -->
+    <string name="tap_to_start">اضغط للبدء</string>
+    <string name="today_mission">مهمة اليوم</string>
+    <string name="continue_learning">أكمل التعلّم</string>
+
+    <!-- نصائح تشجيعية للطفل -->
+    <string name="praise_great">أحسنت! 🌟</string>
+    <string name="praise_wow">رائع! 🎉</string>
+    <string name="praise_bravo">ممتاز! 👏</string>
+    <string name="praise_super">بطل! ⭐</string>
+    <string name="praise_keep_going">استمر! 💪</string>
+
+    <!-- رسائل الخطأ الودية -->
+    <string name="err_try_softly">حاول برفق 🙂</string>
+    <string name="err_almost_here">أوشكت! قريباً</string>
+
+    <!-- نشاط الإنجازات -->
+    <string name="my_achievements">إنجازاتي</string>
+    <string name="my_xp">نقاطي</string>
+    <string name="my_stars">نجومي</string>
+    <string name="my_streak">سلسلتي اليومية</string>
+    <string name="days_streak">يوم متتالي</string>
+    <string name="total_xp">مجموع النقاط</string>
+    <string name="badges_earned">الشارات المكتسبة</string>
+    <string name="lessons_done">الدروس المكتملة</string>
+
+    <!-- الأقسام - وصف تفصيلي -->
+    <string name="arabic_letters_count">28 حرف</string>
+    <string name="english_letters_count">26 حرف</string>
+    <string name="numbers_count">11 رقم</string>
+    <string name="colors_count">7 ألوان</string>
+    <string name="shapes_count">6 أشكال</string>
+    <string name="animals_count">10 حيوانات</string>
+
+    <!-- رسائل نظام التحفيز -->
+    <string name="sticker_unlocked_msg">فزت بملصق جديد! 🎁</string>
+    <string name="badge_unlocked_msg">فتحت شارة جديدة! 🏆</string>
+    <string name="streak_extended_msg">سلسلتك اليومية الآن %1$d يوم!</string>
+
+    <!-- ركن الأهل -->
+    <string name="parents_corner_msg">تابع تقدم طفلك وساعده على التعلم</string>
+
+    <!-- إعدادات الصوت -->
+    <string name="sound_on">الصوت مفعّل</string>
+    <string name="sound_off">الصوت معطّل</string>
+    <string name="vibration_on">الاهتزاز مفعّل</string>
+    <string name="vibration_off">الاهتزاز معطّل</string>
+</resources>

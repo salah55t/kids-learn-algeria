@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- أيقونة التطبيق: "ا" بالعربية مع عناصر ملونة -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- خلفية دائرية -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54m-35,0a35,35 0 1,0 70,0a35,35 0 1,0 -70,0" />
+
+    <!-- حرف "ا" -->
+    <path
+        android:fillColor="#E91E63"
+        android:pathData="M50,30L58,30L58,75L50,75Z" />
+
+    <!-- نقطة "ب" أعلى الحرف -->
+    <path
+        android:fillColor="#FDD835"
+        android:pathData="M54,22m-5,0a5,5 0 1,0 10,0a5,5 0 1,0 -10,0" />
+
+    <!-- عناصر ملونة أسفل الحرف -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M40,75m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0" />
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M68,75m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0" />
+</vector>

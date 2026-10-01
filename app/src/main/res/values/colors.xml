@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- لوحة ألوان التطبيق - ألوان زاهية مناسبة للأطفال -->
+
+    <!-- ألوان أساسية -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- ألوان التطبيق الرئيسية -->
+    <color name="primary">#FF6B9D</color>          <!-- وردي مرح -->
+    <color name="primary_dark">#E91E63</color>
+    <color name="primary_light">#FCE4EC</color>
+    <color name="accent">#FFD93D</color>          <!-- أصفر مرح -->
+    <color name="secondary">#6BCB77</color>       <!-- أخضر مرح -->
+    <color name="tertiary">#4D96FF</color>        <!-- أزرق سماوي -->
+
+    <!-- ألوان الخلفيات -->
+    <color name="bg_main">#FFF9F5</color>          <!-- خلفية كريمية دافئة -->
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_section_yellow">#FFF3B0</color>
+    <color name="bg_section_pink">#FFD6E0</color>
+    <color name="bg_section_blue">#C7E9FF</color>
+    <color name="bg_section_green">#D4EDDA</color>
+    <color name="bg_section_purple">#E5D4F9</color>
+    <color name="bg_section_orange">#FFE0B2</color>
+
+    <!-- ألوان النصوص -->
+    <color name="text_primary">#2C3E50</color>
+    <color name="text_secondary">#5F6F7E</color>
+    <color name="text_light">#FFFFFF</color>
+    <color name="text_hint">#90A4AE</color>
+
+    <!-- ألوان رسم الحروف -->
+    <color name="brush_default">#E91E63</color>     <!-- وردي للقلم -->
+    <color name="brush_red">#E53935</color>
+    <color name="brush_blue">#1E88E5</color>
+    <color name="brush_green">#43A047</color>
+    <color name="brush_purple">#8E24AA</color>
+    <color name="brush_orange">#FB8C00</color>
+    <color name="guide_letter">#BDBDBD</color>       <!-- رمادي خفيف للحرف الدليلي -->
+
+    <!-- ألوان الأقسام (للبطاقات الرئيسية) -->
+    <color name="section_arabic_letters">#FF6B9D</color>
+    <color name="section_english_letters">#4D96FF</color>
+    <color name="section_numbers">#FFD93D</color>
+    <color name="section_colors">#6BCB77</color>
+    <color name="section_shapes">#B388EB</color>
+    <color name="section_animals">#FF8C42</color>
+
+    <!-- ألوان النجاح/الخطأ -->
+    <color name="success">#43A047</color>
+    <color name="error">#E53935</color>
+    <color name="warning">#FB8C00</color>
+
+    <!-- ألوان الشارات -->
+    <color name="gold">#FFD700</color>
+    <color name="silver">#C0C0C0</color>
+    <color name="bronze">#CD7F32</color>
+</resources>

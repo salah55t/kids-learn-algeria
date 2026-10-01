@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ======== النصوص الإنجليزية الافتراضية (للأجهزة التي لا تدعم العربية) ======== -->
+    <string name="app_name">Kids Learn</string>
+
+    <!-- الشاشة الرئيسية -->
+    <string name="app_subtitle">تعلم المرح</string>
+    <string name="welcome">مرحباً!</string>
+    <string name="level">المستوى</string>
+    <string name="xp_points">نقطة</string>
+    <string name="stars">نجوم</string>
+    <string name="streak">سلسلة</string>
+    <string name="day">يوم</string>
+
+    <!-- البطاقات الرئيسية -->
+    <string name="section_arabic_letters">الحروف العربية</string>
+    <string name="section_english_letters">الحروف الإنجليزية</string>
+    <string name="section_numbers">الأرقام</string>
+    <string name="section_colors">الألوان</string>
+    <string name="section_shapes">الأشكال</string>
+    <string name="section_animals">الحيوانات</string>
+
+    <string name="section_arabic_letters_desc">تعلم الحروف العربية 28 حرف</string>
+    <string name="section_english_letters_desc">Learn English Alphabet A-Z</string>
+    <string name="section_numbers_desc">تعلم العد من 0 إلى 10</string>
+    <string name="section_colors_desc">تعلم الألوان الأساسية</string>
+    <string name="section_shapes_desc">تعلم الأشكال الهندسية</string>
+    <string name="section_animals_desc">تعلم أسماء الحيوانات</string>
+
+    <!-- نشاط تفاصيل الحرف -->
+    <string name="trace_the_letter">اكتب الحرف بإصبعك</string>
+    <string name="listen">استمع</string>
+    <string name="example_word">كلمة</string>
+    <string name="next_letter">التالي</string>
+    <string name="previous_letter">السابق</string>
+    <string name="clear">مسح</string>
+    <string name="change_color">تغيير اللون</string>
+    <string name="great_job">عمل رائع!</string>
+    <string name="try_again">حاول مرة أخرى</string>
+    <string name="completed">مكتمل ✓</string>
+    <string name="lesson_complete">درس مكتمل!</string>
+    <string name="earned_stars">حصلت على نجوم!</string>
+    <string name="sticker_unlocked">ملصق جديد!</string>
+
+    <!-- الشارات -->
+    <string name="achievements">الإنجازات</string>
+    <string name="no_badges_yet">لا توجد شارات بعد - ابدأ التعلم!</string>
+    <string name="unlocked">مفتوحة</string>
+    <string name="locked">مغلقة</string>
+
+    <!-- الحيوانات - الأصوات -->
+    <string name="animal_sound">الصوت</string>
+    <string name="hear_sound">اسمع الصوت</string>
+
+    <!-- الأزرار العامة -->
+    <string name="back">رجوع</string>
+    <string name="home">الرئيسية</string>
+    <string name="settings">الإعدادات</string>
+    <string name="exit">خروج</string>
+
+    <!-- نصائح للوالدين -->
+    <string name="parents_corner">ركن الأهل</string>
+    <string name="tip_praise">امدح طفلك بعد كل حرف ✓</string>
+    <string name="tip_short">جلسات قصيرة 10-15 دقيقة</string>
+    <string name="tip_repeat">التكرار مفتاح التعلم</string>
+
+    <!-- أسماء الأشكال -->
+    <string name="shape_circle">دائرة</string>
+    <string name="shape_square">مربع</string>
+    <string name="shape_triangle">مثلث</string>
+    <string name="shape_rectangle">مستطيل</string>
+    <string name="shape_star">نجمة</string>
+    <string name="shape_heart">قلب</string>
+</resources>

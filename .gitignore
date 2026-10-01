@@ -1,0 +1,32 @@
+# ملفات البناء
+.gradle/
+build/
+*.apk
+*.ap_
+*.dex
+
+# ملفات Kotlin
+*.kotlin_metadata
+
+# ملفات IDE
+.idea/
+*.iml
+local.properties
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# ملفات Keystore (لا تشارك مفاتيح التوقيع!)
+*.jks
+*.keystore
+keystore.properties
+
+# Gradle Wrapper لا يُتجاهل (يجب تضمينه)
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+!gradlew
+!gradlew.bat
+
+# سجلات
+*.log

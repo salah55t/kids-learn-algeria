@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- أبعاد قياسية -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+    <dimen name="spacing_xxl">48dp</dimen>
+
+    <!-- أحجام البطاقات -->
+    <dimen name="card_min_height">180dp</dimen>
+    <dimen name="card_corner_radius">24dp</dimen>
+
+    <!-- أحجام النصوص -->
+    <dimen name="text_xsmall">12sp</dimen>
+    <dimen name="text_small">14sp</dimen>
+    <dimen name="text_medium">16sp</dimen>
+    <dimen name="text_large">20sp</dimen>
+    <dimen name="text_xlarge">24sp</dimen>
+    <dimen name="text_xxlarge">32sp</dimen>
+    <dimen name="text_huge">48sp</dimen>
+    <dimen name="text_letter_grid">36sp</dimen>
+    <dimen name="text_letter_detail">120sp</dimen>
+
+    <!-- أحجام الأيقونات -->
+    <dimen name="icon_sm">24dp</dimen>
+    <dimen name="icon_md">48dp</dimen>
+    <dimen name="icon_lg">72dp</dimen>
+    <dimen name="icon_xl">120dp</dimen>
+</resources>
