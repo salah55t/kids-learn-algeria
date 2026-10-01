@@ -11,6 +11,8 @@ import java.util.Locale
  *
  * ملاحظة: محرك TTS متوفر افتراضياً في 99% من أجهزة Android الحديثة
  * عبر تطبيق "Speech Services" من Google.
+ *
+ * تم تصميم الكود ليكون دفاعياً: لا يفشل التطبيق إذا كان TTS غير متوفر.
  */
 class TtsManager private constructor(private val context: Context) {
 
@@ -20,14 +22,22 @@ class TtsManager private constructor(private val context: Context) {
     private var pendingLang: String = "ar"
 
     init {
-        tts = TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                isReady = true
-                Log.d("TtsManager", "TTS engine ready")
-                pendingText?.let { speakInternal(it, pendingLang); pendingText = null }
-            } else {
-                Log.e("TtsManager", "TTS init failed: $status")
+        try {
+            tts = TextToSpeech(context) { status ->
+                try {
+                    if (status == TextToSpeech.SUCCESS) {
+                        isReady = true
+                        Log.d("TtsManager", "TTS engine ready")
+                        pendingText?.let { speakInternal(it, pendingLang); pendingText = null }
+                    } else {
+                        Log.e("TtsManager", "TTS init failed: $status")
+                    }
+                } catch (e: Exception) {
+                    Log.e("TtsManager", "TTS init callback error", e)
+                }
             }
+        } catch (e: Exception) {
+            Log.e("TtsManager", "TextToSpeech constructor failed", e)
         }
     }
 
@@ -46,19 +56,23 @@ class TtsManager private constructor(private val context: Context) {
     }
 
     private fun speakInternal(text: String, lang: String) {
-        val locale = when (lang) {
-            "en" -> Locale.US
-            "ar" -> Locale("ar")
-            else -> Locale.getDefault()
-        }
-        val result = tts?.setLanguage(locale)
-        when (result) {
-            TextToSpeech.LANG_MISSING_DATA, TextToSpeech.LANG_NOT_SUPPORTED -> {
-                Log.w("TtsManager", "Language $lang not supported, falling back to default")
-                tts?.setLanguage(Locale.getDefault())
+        try {
+            val locale = when (lang) {
+                "en" -> Locale.US
+                "ar" -> Locale("ar")
+                else -> Locale.getDefault()
             }
+            val result = tts?.setLanguage(locale)
+            when (result) {
+                TextToSpeech.LANG_MISSING_DATA, TextToSpeech.LANG_NOT_SUPPORTED -> {
+                    Log.w("TtsManager", "Language $lang not supported, falling back to default")
+                    tts?.setLanguage(Locale.getDefault())
+                }
+            }
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts_${System.currentTimeMillis()}")
+        } catch (e: Exception) {
+            Log.e("TtsManager", "speak failed", e)
         }
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts_${System.currentTimeMillis()}")
     }
 
     /**
@@ -74,18 +88,30 @@ class TtsManager private constructor(private val context: Context) {
             Log.e("TtsManager", "Pitch/rate set failed", e)
             speak(letter, lang)
         } finally {
-            tts?.setPitch(1.0f)
-            tts?.setSpeechRate(1.0f)
+            try {
+                tts?.setPitch(1.0f)
+                tts?.setSpeechRate(1.0f)
+            } catch (_: Exception) {
+                // تجاهل
+            }
         }
     }
 
     fun stop() {
-        tts?.stop()
+        try {
+            tts?.stop()
+        } catch (e: Exception) {
+            Log.e("TtsManager", "stop failed", e)
+        }
     }
 
     fun destroy() {
-        tts?.stop()
-        tts?.shutdown()
+        try {
+            tts?.stop()
+            tts?.shutdown()
+        } catch (e: Exception) {
+            Log.e("TtsManager", "destroy failed", e)
+        }
         tts = null
         isReady = false
     }

@@ -2,6 +2,7 @@ package com.salah.kidslearn.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -30,20 +31,41 @@ import com.salah.kidslearn.utils.TtsManager
  */
 class MainActivity : AppCompatActivity() {
 
+    private val TAG = "MainActivity"
+
     private lateinit var tvXp: TextView
     private lateinit var tvStars: TextView
     private lateinit var tvStreak: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        try {
+            setContentView(R.layout.activity_main)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to set content view", e)
+            finish()
+            return
+        }
 
-        // تهيئة المحركات (لا تستهلك موارد -_lazy init)
-        TtsManager.getInstance(this)
-        SoundUtils.getInstance(this)
+        // تهيئة المحركات بشكل دفاعي (لا توقف التطبيق عند الفشل)
+        try {
+            TtsManager.getInstance(this)
+        } catch (e: Exception) {
+            Log.e(TAG, "TtsManager init failed", e)
+        }
+
+        try {
+            SoundUtils.getInstance(this)
+        } catch (e: Exception) {
+            Log.e(TAG, "SoundUtils init failed", e)
+        }
 
         // تحديث السلسلة اليومية
-        ProgressManager.getInstance(this).updateStreak()
+        try {
+            ProgressManager.getInstance(this).updateStreak()
+        } catch (e: Exception) {
+            Log.e(TAG, "ProgressManager init failed", e)
+        }
 
         bindViews()
         setupClickListeners()
@@ -57,41 +79,53 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        findViewById<CardView>(R.id.card_arabic_letters).setOnClickListener {
-            SoundUtils.getInstance(this).playClick()
+        findViewById<CardView>(R.id.card_arabic_letters)?.setOnClickListener {
+            playClickSafe()
             startActivity(Intent(this, ArabicLettersActivity::class.java))
         }
-        findViewById<CardView>(R.id.card_english_letters).setOnClickListener {
-            SoundUtils.getInstance(this).playClick()
+        findViewById<CardView>(R.id.card_english_letters)?.setOnClickListener {
+            playClickSafe()
             startActivity(Intent(this, EnglishLettersActivity::class.java))
         }
-        findViewById<CardView>(R.id.card_numbers).setOnClickListener {
-            SoundUtils.getInstance(this).playClick()
+        findViewById<CardView>(R.id.card_numbers)?.setOnClickListener {
+            playClickSafe()
             startActivity(Intent(this, NumbersActivity::class.java))
         }
-        findViewById<CardView>(R.id.card_colors).setOnClickListener {
-            SoundUtils.getInstance(this).playClick()
+        findViewById<CardView>(R.id.card_colors)?.setOnClickListener {
+            playClickSafe()
             startActivity(Intent(this, ColorsActivity::class.java))
         }
-        findViewById<CardView>(R.id.card_shapes).setOnClickListener {
-            SoundUtils.getInstance(this).playClick()
+        findViewById<CardView>(R.id.card_shapes)?.setOnClickListener {
+            playClickSafe()
             startActivity(Intent(this, ShapesActivity::class.java))
         }
-        findViewById<CardView>(R.id.card_animals).setOnClickListener {
-            SoundUtils.getInstance(this).playClick()
+        findViewById<CardView>(R.id.card_animals)?.setOnClickListener {
+            playClickSafe()
             startActivity(Intent(this, AnimalsActivity::class.java))
         }
-        findViewById<View>(R.id.btn_achievements).setOnClickListener {
-            SoundUtils.getInstance(this).playClick()
+        findViewById<View>(R.id.btn_achievements)?.setOnClickListener {
+            playClickSafe()
             startActivity(Intent(this, AchievementsActivity::class.java))
         }
     }
 
+    private fun playClickSafe() {
+        try {
+            SoundUtils.getInstance(this).playClick()
+        } catch (e: Exception) {
+            Log.e(TAG, "playClick failed", e)
+        }
+    }
+
     private fun updateStats() {
-        val pm = ProgressManager.getInstance(this)
-        tvXp.text = pm.getXp().toString()
-        tvStars.text = pm.getStars().toString()
-        tvStreak.text = "${pm.getStreak()}"
+        try {
+            val pm = ProgressManager.getInstance(this)
+            tvXp.text = pm.getXp().toString()
+            tvStars.text = pm.getStars().toString()
+            tvStreak.text = "${pm.getStreak()}"
+        } catch (e: Exception) {
+            Log.e(TAG, "updateStats failed", e)
+        }
     }
 
     override fun onResume() {
@@ -101,6 +135,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        TtsManager.getInstance(this).destroy()
+        try {
+            TtsManager.getInstance(this).destroy()
+        } catch (e: Exception) {
+            Log.e(TAG, "TtsManager destroy failed", e)
+        }
     }
 }
